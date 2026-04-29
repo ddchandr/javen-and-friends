@@ -1,24 +1,31 @@
 exports.handler = async () => {
   const API_KEY = process.env.TT_API_KEY;
-  // 2086909 = May 16 Harlem, 2086377 = May 23 Bronx
-  const EVENT_IDS = ['2086909', '2086377'];
+  // es_2086377 = May 16 Harlem (22 tickets), es_2086909 = May 23 Bronx (30 tickets)
+  const EVENT_SERIES_IDS = ['es_2086377', 'es_2086909'];
 
   try {
-    const results = await Promise.all(EVENT_IDS.map(async (id) => {
-      const res = await fetch(`https://api.tickettailor.com/v1/events/${id}`, {
-        headers: {
-          'Authorization': 'Basic ' + Buffer.from(API_KEY + ':').toString('base64'),
-          'Accept': 'application/json'
-        }
-      });
-      const data = await res.json();
-      return {
-        id,
-        total: data.total_issued_tickets,
-        remaining: data.tickets_available,
-        status: data.status
-      };
-    }));
+    const res = await fetch('https://api.tickettailor.com/v1/event_series', {
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(API_KEY + ':').toString('base64'),
+        'Accept': 'application/json'
+      }
+    });
+    const data = await res.json();
+    const series = data.data || [];
+
+    const results = EVENT_SERIES_IDS.map(id => {
+      const event = series.find(e => e.id === id);
+      if (!event) return { id, total: null, remaining: null, status: 'not_found' };
+
+      const ticketType = event.default_ticket_types?.[0];
+      const total     = ticketType?.quantity_total ?? null;
+      const issued    = ticketType?.quantity_issued ?? 0;
+      const held      = ticketType?.quantity_held ?? 0;
+      const inBaskets = ticketType?.quantity_in_baskets ?? 0;
+      const remaining = total !== null ? total - issued - held - inBaskets : null;
+
+      return { id, total, remaining, status: event.status };
+    });
 
     return {
       statusCode: 200,
