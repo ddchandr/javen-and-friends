@@ -12,12 +12,15 @@ exports.handler = async () => {
         }
       });
       const data = await res.json();
-      return {
-        id,
-        total: data.total_issued_tickets,
-        remaining: data.tickets_available,
-        status: data.status
-      };
+
+      // Log full response so we can see exact field names in Netlify logs
+      console.log(`Event ${id}:`, JSON.stringify(data));
+
+      // Try multiple possible field names
+      const remaining = data.tickets_available ?? data.remaining_tickets ?? data.available ?? null;
+      const total = data.total_issued_tickets ?? data.capacity ?? data.total ?? null;
+
+      return { id, total, remaining, status: data.status ?? 'unknown' };
     }));
 
     return {
