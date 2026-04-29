@@ -367,6 +367,20 @@
         .concert-card.is-open .program-intermission        { opacity: 1; transform: none; transition-delay: 0.24s; }
         .concert-card.is-open .program-total               { opacity: 1; transform: none; transition-delay: 0.46s; }
 
+        .cat-note {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            font-family: var(--f-body);
+            color: rgba(255,255,255,0.35);
+            margin-top: 6px;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.4s ease, transform 0.4s var(--ease-out-expo);
+        }
+        .concert-card.is-open .cat-note { opacity: 1; transform: none; transition-delay: 0.5s; }
+
         /* CTA slides up */
         .cta-primary-wrap {
             opacity: 0;
@@ -670,7 +684,7 @@
                         <button class="ticket-row" onclick="toggleCard('card-may16')">
                             <div class="ticket-left">
                                 <span class="ticket-date">May 16</span>
-                                <span class="ticket-headline">5:30 PM · Chamber Evening I · Location: Harlem</span>
+                                <span class="ticket-headline">5:30 PM · Chamber Evening I · Location: Harlem | 🐱 Cat Residence</span>
                             </div>
                             <div class="ticket-right">
                 <span class="ticket-status" id="status-may16">22 / 22 · Available</span>
@@ -707,7 +721,7 @@
                         <button class="ticket-row" onclick="toggleCard('card-may23')">
                             <div class="ticket-left">
                                 <span class="ticket-date">May 23</span>
-                                <span class="ticket-headline">4:30 PM · Chamber Evening II · Location: The Bronx</span>
+                                <span class="ticket-headline">4:30 PM · Chamber Evening II · Location: The Bronx | 🐱 Cat Residence</span>
                             </div>
                             <div class="ticket-right">
                 <span class="ticket-status" id="status-may23">30 / 30 · Available</span>
