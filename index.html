@@ -673,7 +673,7 @@
                                 <span class="ticket-headline">5:30 PM · Chamber Evening I · Location: Harlem</span>
                             </div>
                             <div class="ticket-right">
-                <span class="ticket-status" id="status-may16">30 / 30 · Available</span>
+                <span class="ticket-status" id="status-may16">22 / 22 · Available</span>
                                 <span class="ticket-arrow">▾</span>
                             </div>
                         </button>
@@ -773,8 +773,8 @@
                 const data = await res.json();
                 data.forEach(event => {
                     const elMap = {
-                        '2086377': document.getElementById('status-may23'),
-                        '2086909': document.getElementById('status-may16')
+                        'es_2086377': document.getElementById('status-may16'),
+                        'es_2086909': document.getElementById('status-may23')
                     };
                     const el = elMap[event.id];
                     if (!el) return;
