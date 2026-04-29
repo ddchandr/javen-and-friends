@@ -1,27 +1,31 @@
 exports.handler = async () => {
   const API_KEY = process.env.TT_API_KEY;
-  // 2086909 = May 16 Harlem, 2086377 = May 23 Bronx
   const EVENT_IDS = ['2086909', '2086377'];
 
   try {
-    const results = await Promise.all(EVENT_IDS.map(async (id) => {
-      const res = await fetch(`https://api.tickettailor.com/v1/events/${id}`, {
-        headers: {
-          'Authorization': 'Basic ' + Buffer.from(API_KEY + ':').toString('base64'),
-          'Accept': 'application/json'
-        }
-      });
-      const data = await res.json();
+    const res = await fetch('https://api.tickettailor.com/v1/events', {
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(API_KEY + ':').toString('base64'),
+        'Accept': 'application/json'
+      }
+    });
+    const data = await res.json();
 
-      // Log full response so we can see exact field names in Netlify logs
-      console.log(`Event ${id}:`, JSON.stringify(data));
+    console.log('Events list:', JSON.stringify(data));
 
-      // Try multiple possible field names
-      const remaining = data.tickets_available ?? data.remaining_tickets ?? data.available ?? null;
-      const total = data.total_issued_tickets ?? data.capacity ?? data.total ?? null;
+    const events = data.data || data;
 
-      return { id, total, remaining, status: data.status ?? 'unknown' };
-    }));
+    const results = EVENT_IDS.map(id => {
+      const event = events.find(e => String(e.id) === String(id));
+      if (!event) return { id, total: null, remaining: null, status: 'not_found' };
+
+      console.log(`Event ${id} fields:`, JSON.stringify(event));
+
+      const remaining = event.tickets_available ?? event.remaining_tickets ?? event.available ?? null;
+      const total = event.total_issued_tickets ?? event.capacity ?? event.total ?? null;
+
+      return { id, total, remaining, status: event.status ?? 'unknown' };
+    });
 
     return {
       statusCode: 200,
