@@ -317,7 +317,6 @@
 </div>
 
 <script>
-const API_KEY = 'sk_12291_294511_6d9df98cce99d70149cd02e43dda8483';
 const EVENTS = [
     { seriesId: 'es_2086377', eventId: '2086909', name: 'May 16 · Harlem', capacity: 22, ticketPrice: 20 },
     { seriesId: 'es_2086909', eventId: '2086377', name: 'May 23 · The Bronx', capacity: 30, ticketPrice: 20 }
@@ -328,36 +327,20 @@ const NUM_MEMBERS = 6;
 let allData = [];
 let activeTab = 0;
 
-async function ttFetch(endpoint) {
-    const res = await fetch(`https://api.tickettailor.com/v1/${endpoint}`, {
-        headers: {
-            'Authorization': 'Basic ' + btoa(API_KEY + ':'),
-            'Accept': 'application/json'
-        }
-    });
-    return res.json();
-}
 
 async function loadData() {
     document.getElementById('main-content').innerHTML = '<div class="loading"><span>Loading live data...</span></div>';
 
     try {
-        // Fetch orders for both events
-        const results = await Promise.all(EVENTS.map(async (event) => {
-            const [seriesData, ordersData] = await Promise.all([
-                ttFetch(`event_series/${event.seriesId}`),
-                ttFetch(`orders?event_id=${event.eventId}&limit=100`)
-            ]);
-            return { event, series: seriesData, orders: ordersData.data || [] };
-        }));
-
-        allData = results;
+        const res = await fetch('/.netlify/functions/dashboard-data');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        allData = await res.json();
         document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
         render();
     } catch (err) {
         document.getElementById('main-content').innerHTML = `
             <div class="error-msg">
-                ⚠ Could not load data. If running locally, this dashboard needs to be hosted on your Netlify site at <strong>/dashboard.html</strong> due to CORS. Error: ${err.message}
+                ⚠ Could not load data. Make sure <strong>dashboard-data.js</strong> is in your <strong>netlify/functions/</strong> folder and redeployed. Error: ${err.message}
             </div>`;
     }
 }
