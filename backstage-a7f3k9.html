@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apartment Strings — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --border: rgba(255,255,255,0.07);
+            --text: #ffffff;
+            --muted: rgba(255,255,255,0.4);
+            --dim: rgba(255,255,255,0.15);
+            --accent: #c8f0a0;
+            --accent2: #f0c8a0;
+            --red: #ff6b6b;
+            --f-display: 'Funnel Display', sans-serif;
+            --f-body: 'Inter', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--f-body);
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 40px 24px;
+        }
+
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 48px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header-left h1 {
+            font-family: var(--f-display);
+            font-size: 1.6rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+        .header-left p {
+            color: var(--muted);
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .refresh-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-family: var(--f-body);
+            font-size: 0.7rem;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .refresh-btn:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 80px 0;
+            color: var(--muted);
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .loading span { animation: pulse 1.2s ease infinite; }
+        @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+        /* Event tabs */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab {
+            padding: 10px 20px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+        .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+        .tab:hover:not(.active) { color: rgba(255,255,255,0.6); }
+
+        /* Summary cards row */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        @media (max-width: 600px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 16px;
+        }
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-family: var(--f-display);
+            font-size: 1.8rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+        .stat-value.green { color: var(--accent); }
+        .stat-value.orange { color: var(--accent2); }
+        .stat-value.red { color: var(--red); }
+        .stat-sub {
+            font-size: 0.65rem;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        /* Projection tool */
+        .projection-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        .projection-box h2 {
+            font-family: var(--f-display);
+            font-size: 1rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+        }
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .slider-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            width: 130px;
+            flex-shrink: 0;
+        }
+        input[type=range] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 2px;
+            background: var(--dim);
+            border-radius: 2px;
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+        }
+        .slider-val {
+            font-family: var(--f-display);
+            font-size: 1rem;
+            width: 36px;
+            text-align: right;
+            color: var(--accent);
+        }
+
+        .projection-results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        @media (max-width: 600px) { .projection-results { grid-template-columns: 1fr 1fr; } }
+
+        .proj-card {
+            padding: 14px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        .proj-name {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .proj-amount {
+            font-family: var(--f-display);
+            font-size: 1.4rem;
+            color: var(--accent);
+            letter-spacing: -0.02em;
+        }
+        .proj-per {
+            font-size: 0.65rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* Orders table */
+        .section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 32px;
+        }
+        .orders-table th {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            font-weight: 400;
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .orders-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.8);
+        }
+        .orders-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 500;
+        }
+        .badge-paid { background: rgba(200,240,160,0.15); color: var(--accent); }
+        .badge-free { background: rgba(240,200,160,0.15); color: var(--accent2); }
+        .badge-pending { background: rgba(255,107,107,0.15); color: var(--red); }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+            font-size: 0.8rem;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+
+        .event-panel { display: none; }
+        .event-panel.active { display: block; }
+
+        .error-msg {
+            background: rgba(255,107,107,0.1);
+            border: 1px solid rgba(255,107,107,0.3);
+            border-radius: 8px;
+            padding: 16px 20px;
+            color: var(--red);
+            font-size: 0.8rem;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <div class="header">
+        <div class="header-left">
+            <h1>Apartment Strings</h1>
+            <p id="last-updated">Loading data...</p>
+        </div>
+        <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
+    </div>
+
+    <div id="main-content">
+        <div class="loading"><span>Loading live data...</span></div>
+    </div>
+
+</div>
+
+<script>
+const API_KEY = 'sk_12291_294511_6d9df98cce99d70149cd02e43dda8483';
+const EVENTS = [
+    { seriesId: 'es_2086377', eventId: '2086909', name: 'May 16 · Harlem', capacity: 22, ticketPrice: 20 },
+    { seriesId: 'es_2086909', eventId: '2086377', name: 'May 23 · The Bronx', capacity: 30, ticketPrice: 20 }
+];
+const MEMBERS = ['Alissa', 'Alyssa', 'Gigi', 'Dharsh', 'Javen', 'Emma'];
+const NUM_MEMBERS = 6;
+
+let allData = [];
+let activeTab = 0;
+
+async function ttFetch(endpoint) {
+    const res = await fetch(`https://api.tickettailor.com/v1/${endpoint}`, {
+        headers: {
+            'Authorization': 'Basic ' + btoa(API_KEY + ':'),
+            'Accept': 'application/json'
+        }
+    });
+    return res.json();
+}
+
+async function loadData() {
+    document.getElementById('main-content').innerHTML = '<div class="loading"><span>Loading live data...</span></div>';
+
+    try {
+        // Fetch orders for both events
+        const results = await Promise.all(EVENTS.map(async (event) => {
+            const [seriesData, ordersData] = await Promise.all([
+                ttFetch(`event_series/${event.seriesId}`),
+                ttFetch(`orders?event_id=${event.eventId}&limit=100`)
+            ]);
+            return { event, series: seriesData, orders: ordersData.data || [] };
+        }));
+
+        allData = results;
+        document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+        render();
+    } catch (err) {
+        document.getElementById('main-content').innerHTML = `
+            <div class="error-msg">
+                ⚠ Could not load data. If running locally, this dashboard needs to be hosted on your Netlify site at <strong>/dashboard.html</strong> due to CORS. Error: ${err.message}
+            </div>`;
+    }
+}
+
+function render() {
+    const container = document.getElementById('main-content');
+
+    // Build combined totals
+    let totalRevenue = 0, totalSold = 0, totalFree = 0, totalCapacity = 0;
+    allData.forEach(({ event, series, orders }) => {
+        const tt = series.default_ticket_types?.[0];
+        totalCapacity += event.capacity;
+        orders.forEach(o => {
+            if (o.status === 'complete') {
+                totalRevenue += (o.total || 0);
+                totalSold += (o.quantities?.total || 1);
+                if ((o.total || 0) === 0) totalFree++;
+            }
+        });
+    });
+
+    const totalPaid = totalSold - totalFree;
+    const revenueDisplay = '$' + (totalRevenue / 100).toFixed(2);
+    const perPerson = '$' + (totalRevenue / 100 / NUM_MEMBERS).toFixed(2);
+
+    container.innerHTML = `
+        <!-- Summary -->
+        <div class="summary-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value green">${revenueDisplay}</div>
+                <div class="stat-sub">${perPerson} per person</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tickets Sold</div>
+                <div class="stat-value">${totalSold} <span style="font-size:1rem;color:var(--muted)">/ ${totalCapacity}</span></div>
+                <div class="stat-sub">${totalCapacity - totalSold} remaining</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Paid Tickets</div>
+                <div class="stat-value green">${totalPaid}</div>
+                <div class="stat-sub">$${(totalPaid * 20).toFixed(0)} gross</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Free / Comps</div>
+                <div class="stat-value orange">${totalFree}</div>
+                <div class="stat-sub">$${(totalFree * 20).toFixed(0)} forgone</div>
+            </div>
+        </div>
+
+        <!-- Projection Tool -->
+        <div class="projection-box" id="proj-box">
+            <h2>Revenue Projection</h2>
+            <div class="slider-row">
+                <div class="slider-label">Free tickets given</div>
+                <input type="range" min="0" max="${totalCapacity - totalSold}" value="0" id="slider-free" oninput="updateProjection()">
+                <div class="slider-val" id="val-free">0</div>
+            </div>
+            <div class="slider-row">
+                <div class="slider-label">Ticket price ($)</div>
+                <input type="range" min="0" max="50" step="5" value="20" id="slider-price" oninput="updateProjection()">
+                <div class="slider-val" id="val-price">$20</div>
+            </div>
+            <div class="projection-results" id="proj-results"></div>
+        </div>
+
+        <!-- Per-event tabs -->
+        <div class="tabs">
+            ${allData.map((d, i) => `<div class="tab ${i === activeTab ? 'active' : ''}" onclick="switchTab(${i})">${d.event.name}</div>`).join('')}
+            <div class="tab ${activeTab === 2 ? 'active' : ''}" onclick="switchTab(2)">All Orders</div>
+        </div>
+
+        ${allData.map((d, i) => renderEventPanel(d, i)).join('')}
+        <div class="event-panel ${activeTab === 2 ? 'active' : ''}" id="panel-2">
+            ${renderAllOrders()}
+        </div>
+    `;
+
+    updateProjection();
+}
+
+function renderEventPanel({ event, series, orders }, idx) {
+    const tt = series.default_ticket_types?.[0];
+    const capacity = event.capacity;
+    const issued = tt?.quantity_issued ?? 0;
+    const remaining = capacity - issued;
+    const revenue = orders.filter(o => o.status === 'complete').reduce((s, o) => s + (o.total || 0), 0);
+    const paid = orders.filter(o => o.status === 'complete' && (o.total || 0) > 0).length;
+    const free = orders.filter(o => o.status === 'complete' && (o.total || 0) === 0).length;
+
+    return `<div class="event-panel ${idx === activeTab ? 'active' : ''}" id="panel-${idx}">
+        <div class="summary-grid" style="margin-bottom:24px;">
+            <div class="stat-card">
+                <div class="stat-label">Revenue</div>
+                <div class="stat-value green">$${(revenue/100).toFixed(2)}</div>
+                <div class="stat-sub">$${(revenue/100/NUM_MEMBERS).toFixed(2)} / person</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Capacity</div>
+                <div class="stat-value">${issued} <span style="font-size:1rem;color:var(--muted)">/ ${capacity}</span></div>
+                <div class="stat-sub">${remaining} seats left</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Paid</div>
+                <div class="stat-value green">${paid}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Free / Comps</div>
+                <div class="stat-value orange">${free}</div>
+            </div>
+        </div>
+        <div class="section-title">Orders</div>
+        ${renderOrdersTable(orders)}
+    </div>`;
+}
+
+function renderAllOrders() {
+    const all = allData.flatMap(({ event, orders }) =>
+        orders.map(o => ({ ...o, eventName: event.name }))
+    ).sort((a, b) => b.created_at - a.created_at);
+    return renderOrdersTable(all, true);
+}
+
+function renderOrdersTable(orders, showEvent = false) {
+    const completed = orders.filter(o => o.status === 'complete');
+    if (!completed.length) return '<div class="empty-state">No orders yet</div>';
+
+    const rows = completed.map(o => {
+        const name = o.buyer_details?.first_name
+            ? `${o.buyer_details.first_name} ${o.buyer_details.last_name || ''}`.trim()
+            : '—';
+        const email = o.buyer_details?.email || '—';
+        const amount = (o.total || 0) / 100;
+        const isFree = amount === 0;
+        const qty = o.quantities?.total || 1;
+        const date = o.created_at ? new Date(o.created_at * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+        const badge = isFree
+            ? '<span class="badge badge-free">Comp</span>'
+            : '<span class="badge badge-paid">Paid</span>';
+        const eventCol = showEvent ? `<td>${o.eventName || '—'}</td>` : '';
+        return `<tr>
+            <td>${name}</td>
+            <td style="color:var(--muted)">${email}</td>
+            ${eventCol}
+            <td>${qty}</td>
+            <td>${badge}</td>
+            <td style="color:${isFree ? 'var(--muted)' : 'var(--accent)'}">$${amount.toFixed(2)}</td>
+            <td style="color:var(--muted)">${date}</td>
+        </tr>`;
+    }).join('');
+
+    const eventHeader = showEvent ? '<th>Event</th>' : '';
+    return `<table class="orders-table">
+        <thead><tr>
+            <th>Name</th><th>Email</th>${eventHeader}<th>Qty</th><th>Status</th><th>Amount</th><th>Date</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function updateProjection() {
+    const freeGiven = parseInt(document.getElementById('slider-free').value);
+    const price = parseInt(document.getElementById('slider-price').value);
+    document.getElementById('val-free').textContent = freeGiven;
+    document.getElementById('val-price').textContent = '$' + price;
+
+    // Current state
+    let currentRevenue = 0, totalSold = 0, totalCapacity = 0;
+    allData.forEach(({ event, orders }) => {
+        totalCapacity += event.capacity;
+        orders.filter(o => o.status === 'complete').forEach(o => {
+            currentRevenue += (o.total || 0) / 100;
+            totalSold++;
+        });
+    });
+
+    const remaining = totalCapacity - totalSold;
+    const paidRemaining = Math.max(0, remaining - freeGiven);
+    const projectedRevenue = currentRevenue + (paidRemaining * price);
+    const perPerson = projectedRevenue / NUM_MEMBERS;
+
+    const results = document.getElementById('proj-results');
+    if (!results) return;
+
+    results.innerHTML = `
+        <div class="proj-card">
+            <div class="proj-name">Projected Total</div>
+            <div class="proj-amount">$${projectedRevenue.toFixed(0)}</div>
+            <div class="proj-per">${paidRemaining} paid + ${freeGiven} free of ${remaining} left</div>
+        </div>
+        ${MEMBERS.map(name => `
+        <div class="proj-card">
+            <div class="proj-name">${name}</div>
+            <div class="proj-amount">$${perPerson.toFixed(0)}</div>
+            <div class="proj-per">projected share</div>
+        </div>`).join('')}
+    `;
+}
+
+function switchTab(idx) {
+    activeTab = idx;
+    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+    document.querySelectorAll('.event-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+}
+
+loadData();
+</script>
+</body>
+</html>
