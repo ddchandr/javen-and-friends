@@ -258,232 +258,245 @@
     margin-bottom: 10px;
     padding-left: 2px;
   }
+
+  .refresh-btn {
+    font-family: var(--f-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .refresh-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+  .loading {
+    text-align: center;
+    padding: 80px 0;
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+  .loading span { animation: pulse 1.2s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+  .error-msg {
+    background: var(--red-bg);
+    border: 1px solid rgba(155,28,28,0.2);
+    border-radius: 8px;
+    padding: 16px 20px;
+    color: var(--red);
+    font-size: 0.8rem;
+  }
 </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- Header -->
   <div class="hdr">
     <div>
       <div class="hdr-title">Apartment Strings — Revenue Report</div>
       <h1>Concert Season Overview</h1>
     </div>
-    <div class="hdr-date">As of May 2026</div>
-  </div>
-
-  <!-- Top stats -->
-  <div class="top-stats">
-    <div class="top-stat">
-      <div class="top-stat-label">Total Revenue (Current)</div>
-      <div class="top-stat-val">$300</div>
-      <div class="top-stat-sub">Both concerts combined · $50 / person</div>
-    </div>
-    <div class="top-stat">
-      <div class="top-stat-label">Tickets Sold</div>
-      <div class="top-stat-val">15</div>
-      <div class="top-stat-sub">12 paid · 3 free · 22 remaining</div>
-    </div>
-    <div class="top-stat">
-      <div class="top-stat-label">Max Potential Revenue</div>
-      <div class="top-stat-val">$740</div>
-      <div class="top-stat-sub">If remaining seats sell at $20</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="hdr-date" id="last-updated">Loading...</div>
+      <button class="refresh-btn" onclick="loadData()">↺ Refresh</button>
     </div>
   </div>
 
-  <!-- Event cards -->
-  <div class="main-grid">
-
-    <!-- May 16 -->
-    <div>
-      <div class="section-label">May 16 · Harlem</div>
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Chamber Evening I</span>
-          <span class="card-badge badge-green">SOLD OUT</span>
-        </div>
-        <div class="progress-wrap">
-          <div class="progress-label"><span>Capacity</span><span>19 / 22</span></div>
-          <div class="progress-track"><div class="progress-fill" style="width:86%"></div></div>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Revenue</span>
-          <span class="stat-row-val val-green">$240.00</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Paid tickets</span>
-          <span class="stat-row-val">12</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Comp tickets</span>
-          <span class="stat-row-val val-amber">7</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Remaining</span>
-          <span class="stat-row-val val-red">0</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Per person (6)</span>
-          <span class="stat-row-val val-green">$40.00</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- May 23 -->
-    <div>
-      <div class="section-label">May 23 · The Bronx</div>
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Chamber Evening II</span>
-          <span class="card-badge badge-amber">22 REMAINING</span>
-        </div>
-        <div class="progress-wrap">
-          <div class="progress-label"><span>Capacity</span><span>3 / 30</span></div>
-          <div class="progress-track"><div class="progress-fill amber" style="width:10%"></div></div>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Revenue</span>
-          <span class="stat-row-val val-green">$60.00</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Paid tickets</span>
-          <span class="stat-row-val">3</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Comp tickets</span>
-          <span class="stat-row-val val-amber">5</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Remaining</span>
-          <span class="stat-row-val val-blue">22</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-row-label">Per person (6)</span>
-          <span class="stat-row-val val-green">$10.00</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Projections -->
-  <div class="section-label">May 23 Revenue Projections — Remaining 22 Seats</div>
-  <div class="card proj-card">
-    <table class="proj-table">
-      <thead>
-        <tr>
-          <th>Scenario</th>
-          <th>0 Comps</th>
-          <th>4 Comps</th>
-          <th>6 Comps</th>
-          <th>8 Comps</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Paid seats sold</td>
-          <td>22</td>
-          <td>18</td>
-          <td>16</td>
-          <td>14</td>
-        </tr>
-        <tr>
-          <td>May 23 Revenue</td>
-          <td class="highlight">$440</td>
-          <td class="highlight">$360</td>
-          <td class="highlight">$320</td>
-          <td class="highlight">$280</td>
-        </tr>
-        <tr>
-          <td>Total Revenue (both shows)</td>
-          <td class="highlight">$740</td>
-          <td class="highlight">$660</td>
-          <td class="highlight">$620</td>
-          <td class="highlight">$580</td>
-        </tr>
-        <tr>
-          <td>Per person share</td>
-          <td>$123.33</td>
-          <td>$110.00</td>
-          <td>$103.33</td>
-          <td>$96.67</td>
-        </tr>
-        <tr>
-          <td>Alissa</td>
-          <td>$123.33</td><td>$110.00</td><td>$103.33</td><td>$96.67</td>
-        </tr>
-        <tr>
-          <td>Alyssa</td>
-          <td>$123.33</td><td>$110.00</td><td>$103.33</td><td>$96.67</td>
-        </tr>
-        <tr>
-          <td>Gigi</td>
-          <td>$123.33</td><td>$110.00</td><td>$103.33</td><td>$96.67</td>
-        </tr>
-        <tr>
-          <td>Dharsh</td>
-          <td>$123.33</td><td>$110.00</td><td>$103.33</td><td>$96.67</td>
-        </tr>
-        <tr>
-          <td>Javen</td>
-          <td>$123.33</td><td>$110.00</td><td>$103.33</td><td>$96.67</td>
-        </tr>
-        <tr>
-          <td>Emma</td>
-          <td>$123.33</td><td>$110.00</td><td>$103.33</td><td>$96.67</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Attendees -->
-  <div class="section-label">Attendees</div>
-  <div class="attendee-grid">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">May 16 · Harlem</span>
-        <span class="card-badge badge-green">19 attendees</span>
-      </div>
-      <div class="attendee-list">
-        <div class="attendee-item"><span class="attendee-num">1</span>Anita Quero</div>
-        <div class="attendee-item"><span class="attendee-num">2</span>Anita Quero</div>
-        <div class="attendee-item"><span class="attendee-num">3</span>Avery Deane-Gardner</div>
-        <div class="attendee-item"><span class="attendee-num">4</span>Avery Deane-Gardner</div>
-        <div class="attendee-item"><span class="attendee-num">5</span>Eva Ding</div>
-        <div class="attendee-item"><span class="attendee-num">6</span>Eva Ding</div>
-        <div class="attendee-item"><span class="attendee-num">7</span>Jazzmin Lara</div>
-        <div class="attendee-item"><span class="attendee-num">8</span>Jean Park</div>
-        <div class="attendee-item"><span class="attendee-num">9</span>Jean Park</div>
-        <div class="attendee-item"><span class="attendee-num">10</span>Joanna Bruce</div>
-        <div class="attendee-item"><span class="attendee-num">11</span>Juan and Adia Lara/-Thein</div>
-        <div class="attendee-item"><span class="attendee-num">12</span>Juan and Adia Lara/-Thein</div>
-        <div class="attendee-item"><span class="attendee-num">13</span>Juan Lara</div>
-        <div class="attendee-item"><span class="attendee-num">14</span>Juan Lara</div>
-        <div class="attendee-item"><span class="attendee-num">15</span>Kristine Mar</div>
-        <div class="attendee-item"><span class="attendee-num">16</span>Nigel Alcorn</div>
-        <div class="attendee-item"><span class="attendee-num">17</span>Sadie Hope-Gund</div>
-        <div class="attendee-item"><span class="attendee-num">18</span>Thomas Horikawa</div>
-        <div class="attendee-item"><span class="attendee-num">19</span>Vanessa Lontoc</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">May 23 · The Bronx</span>
-        <span class="card-badge badge-amber">8 attendees</span>
-      </div>
-      <div class="attendee-list">
-        <div class="attendee-item"><span class="attendee-num">1</span>Becky Foinchas</div>
-        <div class="attendee-item"><span class="attendee-num">2</span>Esther Quansah</div>
-        <div class="attendee-item"><span class="attendee-num">3</span>Esther Quansah</div>
-        <div class="attendee-item"><span class="attendee-num">4</span>Katsura Mori</div>
-        <div class="attendee-item"><span class="attendee-num">5</span>Kenneth Alcorn</div>
-        <div class="attendee-item"><span class="attendee-num">6</span>Kenneth Alcorn</div>
-        <div class="attendee-item"><span class="attendee-num">7</span>Sophie Carman</div>
-        <div class="attendee-item"><span class="attendee-num">8</span>Sophie Carman</div>
-      </div>
-    </div>
-  </div>
+  <div id="content"><div class="loading"><span>Fetching live data...</span></div></div>
 
 </div>
+
+<script>
+const MEMBERS = ['Alissa','Alyssa','Gigi','Dharsh','Javen','Emma'];
+const CAPACITIES = { 'es_2086377': 22, 'es_2086909': 30 };
+const TICKET_PRICE = 20;
+
+async function loadData() {
+  document.getElementById('content').innerHTML = '<div class="loading"><span>Fetching live data...</span></div>';
+  try {
+    const res = await fetch('/.netlify/functions/dashboard-data');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    render(data);
+  } catch(e) {
+    document.getElementById('content').innerHTML = `<div class="error-msg">⚠ Could not load data. Make sure dashboard-data.js is deployed in netlify/functions/. Error: ${e.message}</div>`;
+  }
+}
+
+function fmt(cents) { return '$' + (cents/100).toFixed(2); }
+function fmtD(n) { return '$' + n.toFixed(2); }
+
+function render(data) {
+  // Aggregate per event
+  const events = data.map(({ event, series, orders }) => {
+    const cap = CAPACITIES[event.seriesId] || event.capacity;
+    const tt = series.default_ticket_types?.[0];
+    const issued = tt?.quantity_issued ?? 0;
+    const remaining = cap - issued;
+    const complete = orders.filter(o => o.status === 'complete');
+    const revenue = complete.reduce((s,o) => s + (o.total||0), 0);
+    const paid = complete.filter(o => (o.total||0) > 0);
+    const free = complete.filter(o => (o.total||0) === 0);
+    const attendees = complete.map(o => ({
+      name: o.buyer_details ? `${o.buyer_details.first_name||''} ${o.buyer_details.last_name||''}`.trim() : '—',
+      email: o.buyer_details?.email || '—',
+      qty: o.quantities?.total || 1,
+      paid: (o.total||0) > 0,
+      amount: (o.total||0)/100,
+      date: o.created_at ? new Date(o.created_at*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'
+    }));
+    return { event, cap, issued, remaining, revenue, paid, free, attendees };
+  });
+
+  const totalRevenue = events.reduce((s,e) => s + e.revenue, 0) / 100;
+  const totalSold = events.reduce((s,e) => s + e.issued, 0);
+  const totalCap = events.reduce((s,e) => s + e.cap, 0);
+  const totalPaid = events.reduce((s,e) => s + e.paid.length, 0);
+  const totalFree = events.reduce((s,e) => s + e.free.length, 0);
+  const totalRemaining = events.reduce((s,e) => s + e.remaining, 0);
+  const maxRevenue = totalRevenue + (totalRemaining * TICKET_PRICE);
+
+  // Build projection cols dynamically based on remaining
+  const compOptions = [0, 4, 6, 8].filter(c => c <= totalRemaining);
+
+  document.getElementById('content').innerHTML = `
+
+    <!-- Top stats -->
+    <div class="top-stats">
+      <div class="top-stat">
+        <div class="top-stat-label">Total Revenue</div>
+        <div class="top-stat-val">${fmtD(totalRevenue)}</div>
+        <div class="top-stat-sub">${fmtD(totalRevenue/MEMBERS.length)} per person</div>
+      </div>
+      <div class="top-stat">
+        <div class="top-stat-label">Tickets Sold</div>
+        <div class="top-stat-val">${totalSold}</div>
+        <div class="top-stat-sub">${totalPaid} paid · ${totalFree} free · ${totalRemaining} remaining of ${totalCap}</div>
+      </div>
+      <div class="top-stat">
+        <div class="top-stat-label">Max Potential</div>
+        <div class="top-stat-val">${fmtD(maxRevenue)}</div>
+        <div class="top-stat-sub">If all ${totalRemaining} remaining sell at $${TICKET_PRICE}</div>
+      </div>
+    </div>
+
+    <!-- Event cards -->
+    <div class="main-grid">${events.map(e => renderEventCard(e)).join('')}</div>
+
+    <!-- Projections -->
+    <div class="section-label">Revenue Projections — ${totalRemaining} Seats Remaining</div>
+    <div class="card proj-card">${renderProjections(events, totalRevenue, totalRemaining, compOptions)}</div>
+
+    <!-- Attendees -->
+    <div class="section-label">Attendees</div>
+    <div class="attendee-grid">${events.map(e => renderAttendees(e)).join('')}</div>
+
+    <!-- Orders -->
+    <div class="section-label">All Orders</div>
+    <div class="card">${renderOrders(events)}</div>
+  `;
+}
+
+function renderEventCard(e) {
+  const pct = Math.round((e.issued / e.cap) * 100);
+  const revenueD = e.revenue / 100;
+  const badgeClass = e.remaining === 0 ? 'badge-green' : 'badge-amber';
+  const badgeText = e.remaining === 0 ? 'SOLD OUT' : `${e.remaining} REMAINING`;
+  const barClass = e.remaining === 0 ? '' : 'amber';
+  return `
+    <div>
+      <div class="section-label">${e.event.name}</div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">${e.event.name}</span>
+          <span class="card-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Capacity</span><span>${e.issued} / ${e.cap}</span></div>
+          <div class="progress-track"><div class="progress-fill ${barClass}" style="width:${pct}%"></div></div>
+        </div>
+        <div class="stat-row"><span class="stat-row-label">Revenue</span><span class="stat-row-val val-green">${fmtD(revenueD)}</span></div>
+        <div class="stat-row"><span class="stat-row-label">Paid tickets</span><span class="stat-row-val">${e.paid.length}</span></div>
+        <div class="stat-row"><span class="stat-row-label">Comp tickets</span><span class="stat-row-val val-amber">${e.free.length}</span></div>
+        <div class="stat-row"><span class="stat-row-label">Remaining</span><span class="stat-row-val ${e.remaining===0?'val-red':'val-blue'}">${e.remaining}</span></div>
+        <div class="stat-row"><span class="stat-row-label">Per person (6)</span><span class="stat-row-val val-green">${fmtD(revenueD/MEMBERS.length)}</span></div>
+      </div>
+    </div>`;
+}
+
+function renderProjections(events, currentRevenue, totalRemaining, compOptions) {
+  const cols = compOptions.map(comps => {
+    const paidSold = Math.max(0, totalRemaining - comps);
+    const projRevenue = currentRevenue + (paidSold * TICKET_PRICE);
+    const perPerson = projRevenue / MEMBERS.length;
+    return { comps, paidSold, projRevenue, perPerson };
+  });
+
+  const headers = cols.map(c => `<th>${c.comps} Comps</th>`).join('');
+  const paidRow = cols.map(c => `<td>${c.paidSold}</td>`).join('');
+  const revRow = cols.map(c => `<td class="highlight">${fmtD(c.projRevenue)}</td>`).join('');
+  const perRow = cols.map(c => `<td>${fmtD(c.perPerson)}</td>`).join('');
+  const memberRows = MEMBERS.map(m =>
+    `<tr><td>${m}</td>${cols.map(c => `<td>${fmtD(c.perPerson)}</td>`).join('')}</tr>`
+  ).join('');
+
+  return `<table class="proj-table">
+    <thead><tr><th>Scenario</th>${headers}</tr></thead>
+    <tbody>
+      <tr><td>Paid seats sold</td>${paidRow}</tr>
+      <tr><td>Total Revenue</td>${revRow}</tr>
+      <tr><td>Per person share</td>${perRow}</tr>
+      ${memberRows}
+    </tbody>
+  </table>`;
+}
+
+function renderAttendees(e) {
+  const badgeClass = e.remaining === 0 ? 'badge-green' : 'badge-amber';
+  const rows = e.attendees.map((a,i) =>
+    `<div class="attendee-item"><span class="attendee-num">${i+1}</span>${a.name}</div>`
+  ).join('') || '<div class="attendee-item" style="color:var(--muted)">No attendees yet</div>';
+  return `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">${e.event.name}</span>
+        <span class="card-badge ${badgeClass}">${e.attendees.length} attendees</span>
+      </div>
+      <div class="attendee-list">${rows}</div>
+    </div>`;
+}
+
+function renderOrders(events) {
+  const all = events.flatMap(e =>
+    e.attendees.map(a => ({ ...a, eventName: e.event.name }))
+  );
+  if (!all.length) return '<div style="padding:24px;text-align:center;color:var(--muted)">No orders yet</div>';
+  const rows = all.map(a => `
+    <tr>
+      <td>${a.name}</td>
+      <td style="color:var(--muted)">${a.email}</td>
+      <td style="color:var(--muted)">${a.eventName}</td>
+      <td>${a.qty}</td>
+      <td><span class="card-badge ${a.paid?'badge-green':'badge-amber'}">${a.paid?'PAID':'COMP'}</span></td>
+      <td style="color:${a.paid?'var(--green)':'var(--muted)'}">${fmtD(a.amount)}</td>
+      <td style="color:var(--muted)">${a.date}</td>
+    </tr>`).join('');
+  return `<table class="proj-table">
+    <thead><tr><th style="text-align:left">Name</th><th style="text-align:left">Email</th><th style="text-align:left">Event</th><th>Qty</th><th>Status</th><th>Amount</th><th>Date</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+loadData();
+</script>
 </body>
 </html>
