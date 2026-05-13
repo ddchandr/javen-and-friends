@@ -336,28 +336,33 @@ function fmt(cents) { return '$' + (cents/100).toFixed(2); }
 function fmtD(n) { return '$' + n.toFixed(2); }
 
 function render(data) {
-  // Aggregate per event
   const events = data.map(({ event, series, orders }) => {
-    const cap = CAPACITIES[event.seriesId] || event.capacity;
+    const cap = event.capacity;
     const tt = series.default_ticket_types?.[0];
     const issued = tt?.quantity_issued ?? 0;
     const remaining = cap - issued;
-    const complete = orders.filter(o => o.status === 'complete');
-    const revenue = complete.reduce((s,o) => s + (o.total||0), 0);
-    const paid = complete.filter(o => (o.total||0) > 0);
-    const free = complete.filter(o => (o.total||0) === 0);
-    const attendees = complete.map(o => ({
-      name: o.buyer_details ? `${o.buyer_details.first_name||''} ${o.buyer_details.last_name||''}`.trim() : '—',
-      email: o.buyer_details?.email || '—',
-      qty: o.quantities?.total || 1,
-      paid: (o.total||0) > 0,
-      amount: (o.total||0)/100,
-      date: o.created_at ? new Date(o.created_at*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'
-    }));
+    // series.revenue is already in dollars
+    const revenue = series.revenue ?? 0;
+    const complete = orders.filter(o => o.status === 'completed');
+    const paid = complete.filter(o => (o.total || 0) > 0);
+    const free = complete.filter(o => (o.total || 0) === 0);
+    // Count actual attendees from issued_tickets
+    const attendees = complete.flatMap(o =>
+      (o.issued_tickets || [])
+        .filter(t => t.status === 'valid')
+        .map(t => ({
+          name: o.buyer_details?.name || '—',
+          email: o.buyer_details?.email || '—',
+          qty: 1,
+          paid: (o.total || 0) > 0,
+          amount: (o.total || 0) / 100,
+          date: o.created_at ? new Date(o.created_at * 1000).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '—'
+        }))
+    );
     return { event, cap, issued, remaining, revenue, paid, free, attendees };
   });
 
-  const totalRevenue = events.reduce((s,e) => s + e.revenue, 0) / 100;
+  const totalRevenue = events.reduce((s,e) => s + e.revenue, 0);
   const totalSold = events.reduce((s,e) => s + e.issued, 0);
   const totalCap = events.reduce((s,e) => s + e.cap, 0);
   const totalPaid = events.reduce((s,e) => s + e.paid.length, 0);
@@ -408,7 +413,7 @@ function render(data) {
 
 function renderEventCard(e) {
   const pct = Math.round((e.issued / e.cap) * 100);
-  const revenueD = e.revenue / 100;
+  const revenueD = e.revenue;
   const badgeClass = e.remaining === 0 ? 'badge-green' : 'badge-amber';
   const badgeText = e.remaining === 0 ? 'SOLD OUT' : `${e.remaining} REMAINING`;
   const barClass = e.remaining === 0 ? '' : 'amber';
